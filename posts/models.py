@@ -37,6 +37,8 @@ class Profile(User):
 
 
 class BreedType(BaseModel):
+    class Meta:
+        ordering = ('name',)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=62)
     description = models.CharField(max_length=62, null=True, blank=True)

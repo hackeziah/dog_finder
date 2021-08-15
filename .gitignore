@@ -4,6 +4,6 @@ env/
 .idea/
 .DS_Store
 /media/
-/static/
+#/static/
 dog_env/
 /venv/
