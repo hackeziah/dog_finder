@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render
-from posts.models import Dog, BreedType
+from posts.models import Pet, TypeofPet
 
 
 def hi(request):
@@ -10,12 +10,12 @@ def hi(request):
 def dog_registration(request):
     title = "Register Dog"
     # content_header = "Pending Request"
-    breed_type = BreedType.objects.all()
+    type_of_pet = TypeofPet.objects.all()
     template = "base/dog_registration.html"
 
     content = {
         'title': title,
-        'breed_type': breed_type
+        'breed_type': type_of_pet
     }
     return render(request, template, content)
 
