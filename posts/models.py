@@ -1,6 +1,7 @@
+import uuid
+
 from django.contrib.auth.models import User
 from django.db import models
-import uuid
 
 
 class BaseModel(models.Model):
@@ -22,13 +23,18 @@ def name_path_file(path, filename):
 
 
 def upload_to_image(instance, filename):
-    return name_path_file('images/dogs', filename)
+    return name_path_file('images/pets', filename)
+
+
+def upload_to_image_qr(instance, filename):
+    return name_path_file('images/qr', filename)
 
 
 class Profile(User):
     class Meta:
         verbose_name = "Profile"
         verbose_name_plural = "Profiles"
+
     address = models.CharField(max_length=255)
     contact_no = models.CharField(max_length=168)
 
@@ -36,9 +42,10 @@ class Profile(User):
         return f'{self.get_full_name()}'
 
 
-class BreedType(BaseModel):
+class TypeofPet(BaseModel):
     class Meta:
         ordering = ('name',)
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=62)
     description = models.CharField(max_length=62, null=True, blank=True)
@@ -47,7 +54,7 @@ class BreedType(BaseModel):
         return f'{self.name}-{self.description}'
 
 
-class Dog(BaseModel):
+class Pet(BaseModel):
     GENDER = (
         ('MALE', 'MALE'),
         ('FEMALE', 'FEMALE'),
@@ -60,7 +67,9 @@ class Dog(BaseModel):
     image = models.ImageField(upload_to=upload_to_image)
     is_done = models.BooleanField(default=False)
     is_found = models.BooleanField(default=False)
-    breed_type = models.ForeignKey(to=BreedType, on_delete=models.SET_NULL, blank=False, null=True)
+    type_of_pet = models.ForeignKey(to=TypeofPet, on_delete=models.SET_NULL, blank=False, null=True)
+    qr_no = models.CharField(max_length=255, null=True, blank=True)
+    qr_image = models.ImageField(upload_to=upload_to_image_qr)
 
     def __str__(self):
         return f'{self.name}-{self.age}'
@@ -69,24 +78,24 @@ class Dog(BaseModel):
 class PostLost(BaseModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     profile_id = models.ForeignKey(to=Profile, on_delete=models.SET_NULL, null=True, blank=True)
-    dog = models.ForeignKey(to=Dog, on_delete=models.SET_NULL, null=True, blank=True)
+    pet = models.ForeignKey(to=Pet, on_delete=models.SET_NULL, null=True, blank=True)
     description = models.TextField(max_length=255)
 
     def __str__(self):
-        return f'{self.dog.name}'
+        return f'{self.pet.name}'
 
 
 class PostFound(BaseModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     profile_id = models.ForeignKey(to=Profile, on_delete=models.SET_NULL, null=True, blank=True)
-    dog = models.ForeignKey(to=Dog, on_delete=models.SET_NULL, null=True, blank=True)
+    pet = models.ForeignKey(to=Pet, on_delete=models.SET_NULL, null=True, blank=True)
     found_by = models.CharField(max_length=255, verbose_name="Full Name")
     contact_no = models.CharField(max_length=255)
     location = models.CharField(max_length=255)
     description = models.TextField(max_length=255)
 
     def __str__(self):
-        return f'{self.dog.name}'
+        return f'{self.pet.name}'
 
 
 class Message(BaseModel):
